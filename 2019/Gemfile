@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+source 'http://rubygems.org'
+
+gem 'debase'
+gem 'parser', '< 2.6.2'
+gem 'rubocop'
+gem 'ruby-debug-ide'
+gem 'solargraph'

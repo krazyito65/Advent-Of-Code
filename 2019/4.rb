@@ -17,6 +17,29 @@ class Integer
   end
 end
 
+### RLE
+def rle_encode(input)
+  input
+    .chars
+    .chunk { |c| c }
+    .collect { |k, v| { k => v.length } }.reduce({}, :merge)
+end
+
+def rle_double?(rle)
+  return rle.any? { |_, v| v >= 2 }
+end
+
+def rle_has_single_double?(rle)
+  return rle.any? { |_, v| v == 2 }
+end
+
+def throw_away_part1_rle(input)
+  rle = rle_encode(input)
+  return true unless ascending_order?(input) && rle_double?(rle)
+end
+
+#######
+
 def double_and_not_triple?(input)
   (0..9).each do |num|
     return true if input.to_s.include?(num.to_s * 2) && !input.to_s.include?(num.to_s * 3)
@@ -41,6 +64,7 @@ range = get_list(File.absolute_path(__FILE__))
 count = 0
 count2 = 0
 
+# base
 start = Time.now
 (range[0].to_i..range[1].to_i).each do |number|
   number = number.to_s
@@ -52,6 +76,25 @@ end
 finish = Time.now
 diff = finish - start
 
-puts "Day3 Time:\t#{diff}"
-puts "    part1:\t#{count}"
-puts "    part2:\t#{count2}"
+puts "Day3     Time:\t#{diff}"
+puts "        part1:\t#{count}"
+puts "        part2:\t#{count2}"
+
+# RLE
+count = 0
+count2 = 0
+
+start = Time.now
+(range[0].to_i..range[1].to_i).each do |number|
+  number = number.to_s
+  next if throw_away_part1_rle(number)
+
+  count += 1
+  count2 += 1 if rle_has_single_double?(rle_encode(number))
+end
+finish = Time.now
+diff = finish - start
+
+puts "Day3 RLE Time:\t#{diff}"
+puts "        part1:\t#{count}"
+puts "        part2:\t#{count2}"

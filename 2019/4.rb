@@ -18,13 +18,10 @@ class Integer
 end
 
 def double_and_not_triple?(input)
-  input = input.to_i.split_digits
-  h = {}
-  input.each do |v|
-    h.store(v, h[v].to_i + 1)
+  (0..9).each do |num|
+    return true if input.to_s.include?(num.to_s * 2) && !input.to_s.include?(num.to_s * 3)
   end
-
-  return h.any? { |_, v| v > 2 }
+  return false
 end
 
 def ascending_order?(input)
@@ -32,19 +29,29 @@ def ascending_order?(input)
   return digits.eql?(digits.sort)
 end
 
-def throw_away?(input)
-  input = input.to_s
-  return true unless ascending_order?(input) && double_and_not_triple?(input)
+def double_digits?(input)
+  return input.match?(/([0-9])\1{1}/)
+end
+
+def throw_away_part1?(input)
+  return true unless ascending_order?(input) && double_digits?(input)
 end
 
 range = get_list(File.absolute_path(__FILE__))
 count = 0
+count2 = 0
 
 start = Time.now
 (range[0].to_i..range[1].to_i).each do |number|
-  count += 1 unless throw_away?(number)
+  number = number.to_s
+  next if throw_away_part1?(number)
+
+  count += 1
+  count2 += 1 if double_and_not_triple?(number)
 end
 finish = Time.now
 diff = finish - start
 
-puts "Main: #{count} - #{diff}"
+puts "Day3 Time:\t#{diff}"
+puts "    part1:\t#{count}"
+puts "    part2:\t#{count2}"

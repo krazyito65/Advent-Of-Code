@@ -76,7 +76,7 @@ end
 finish = Time.now
 diff = finish - start
 
-puts "Day3     Time:\t#{diff}"
+puts "Day4     Time:\t#{diff}"
 puts "        part1:\t#{count}"
 puts "        part2:\t#{count2}"
 
@@ -95,6 +95,6 @@ end
 finish = Time.now
 diff = finish - start
 
-puts "Day3 RLE Time:\t#{diff}"
+puts "Day4 RLE Time:\t#{diff}"
 puts "        part1:\t#{count}"
 puts "        part2:\t#{count2}"

@@ -17,5 +17,9 @@ def get_array(file_name)
   return file
 end
 
+def get_string(filename)
+  return get_list(filename)[0]
+end
+
 # test function
-# print get_array('2.rb')
+# print get_string('8.rb')

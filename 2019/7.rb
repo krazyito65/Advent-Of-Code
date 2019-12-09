@@ -60,7 +60,7 @@ def find_largest_signal(feedback_loop = false)
       # puts ""
     end
 
-    puts""
+    puts ''
     # memory[i]["output"] = solve(memory[i]["data"], memory[i]["parameter_input"]
     # memory[i]["pos"] = memory[i]["output"]
     # memory[i]["input_number"] =  memory[i]["pos"]

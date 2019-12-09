@@ -24,7 +24,7 @@ end
 
 # redefine day 2
 class Day5
-  def initialize(user_input)
+  def initialize(user_input = [])
     # puts "INITTING DAY5 #{user_input}"
     @user_input = user_input
   end
@@ -34,8 +34,9 @@ class Day5
     index = 0
     input_count = 0
     last_four = 0
+    relative_base = 0
     while 1.positive?
-      # puts "================#{index}====================="
+      # puts "================#{index}(#{input[index]})====================="
       instruction = input[index].to_s.each_char.map(&:to_i)
       opcode = instruction.pop(2).join.to_i
       return last_four if opcode.equal?(99)
@@ -43,22 +44,26 @@ class Day5
       # Modes:
       mode1 = instruction.pop || 0
       mode2 = instruction.pop || 0
-      # mode3 = instruction.pop # this will always refer to a position to WRITE to. (should always be 0)
+      mode3 = instruction.pop || 0 # this will always refer to a position to WRITE to. (should always be 0)
 
+      # puts "modes: #{mode1}, #{mode2}, #{mode3}"
       pos1 = input[index + 1]
       pos2 = input[index + 2]
       pos3 = input[index + 3] # this will always refer to a position to WRITE to.
 
-      val1 = get_vals(pos1, mode1, input) # get the val incase we need to print it
-      val2 = get_vals(pos2, mode2, input)
-      # puts "#{val1}, #{val2}, #{opcode}"
+      val1 = get_vals(pos1, mode1, input, relative_base) # get the val incase we need to print it
+      val2 = get_vals(pos2, mode2, input, relative_base)
+      # puts "val1: #{val1}, val2: #{val2}, opcode: #{opcode}"
 
       val3, increment = get_val3(opcode, val1, val2)
 
       if opcode.eql?(3) # input is 1.  (this saves me from actually inputting it manually)
-        puts "opcode 3: setting input[#{pos1}] = #{@user_input}[#{input_count}] (#{@user_input[input_count]})"
-        puts "using last printed number: #{last_four}" if @user_input[input_count].nil?
-        input[pos1] = @user_input[input_count] || last_four
+        # puts "opcode 3: setting input[#{pos1}] = #{@user_input}[#{input_count}] (#{@user_input[input_count]})"
+        # puts "using last printed number: #{last_four}" if @user_input[input_count].nil?
+        # puts "before: input[#{(mode1.eql?(2) ? pos1 + relative_base : pos1)}] = #{input[(mode1.eql?(2) ? pos1 + relative_base : pos1)]}"
+        input[(mode1.eql?(2) ? pos1 + relative_base : pos1)] = @user_input[input_count] || last_four
+        # puts "opcode 3: #{(mode1.eql?(2) ? pos1 + relative_base : pos1)} = #{@user_input[input_count]}"
+        # puts "after: input[#{(mode1.eql?(2) ? pos1 + relative_base : pos1)}] = #{input[(mode1.eql?(2) ? pos1 + relative_base : pos1)]}"
         input_count += 1
       end
       if opcode.eql?(4) # output the value
@@ -68,18 +73,20 @@ class Day5
 
       index = val1.nonzero? ? val2 : index + 3 if opcode.eql?(5) # output the value
       index = val1.zero? ? val2 : index + 3 if opcode.eql?(6) # output the value
-      input[pos3] = val1 < val2 ? 1 : 0 if opcode.eql?(7)
-      input[pos3] = val1.eql?(val2) ? 1 : 0 if opcode.eql?(8)
+      input[(mode3.eql?(2) ? pos3 + relative_base : pos3)] = val1 < val2 ? 1 : 0 if opcode.eql?(7)
+      input[(mode3.eql?(2) ? pos3 + relative_base : pos3)] = val1.eql?(val2) ? 1 : 0 if opcode.eql?(8)
+      relative_base += val1 if opcode.eql?(9)
+      # puts "relative_base: #{relative_base}"
 
       index += increment
       next if opcode > 2 # if its 3 or 4, val3 is worthless
 
-      input[pos3] = val3
+      input[(mode3.eql?(2) ? pos3 + relative_base : pos3)] = val3
     end
     return last_four
   end
 
-  def get_vals(position_value, mode, input)
+  def get_vals(position_value, mode, input, relative_base)
     # puts "get vals: #{position_value} - #{mode}"
     case mode
     when 0
@@ -89,6 +96,11 @@ class Day5
     when 1
       # puts "immediate mode: return #{position_value}"
       return position_value
+    when 2
+      # relative mode
+      # puts "input: #{input}"
+      # puts "relative mode: returning input[#{relative_base} + #{position_value}] = #{input[relative_base + position_value]}"
+      return input[relative_base + position_value]
     end
   end
 
@@ -113,6 +125,8 @@ class Day5
       increment = 4
     when 8
       increment = 4
+    when 9
+      increment = 2
     else
       puts "[ERROR] incorrect opcode detected: #{opcode}"
       exit 1
@@ -121,8 +135,8 @@ class Day5
   end
 end
 
-input = get_array(File.absolute_path(__FILE__)).map!(&:to_i)
+# input = get_array(File.absolute_path(__FILE__)).map!(&:to_i)
 
-d = Day5.new([ARGV[0].to_i])
+# d = Day5.new([ARGV[0].to_i])
 # d = Day5.new([6, 4686].reject(&:nil?))
-puts d.parse_opcode(input)
+# puts d.parse_opcode(input)

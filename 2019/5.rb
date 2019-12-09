@@ -3,7 +3,7 @@
 require_relative 'util/shared_functions.rb'
 # require_relative '2.rb'
 
-if ARGV.empty?
+if ARGV.empty? && $PROGRAM_NAME.eql?(__FILE__)
   puts 'Too few arguments, please provide an input'
   exit
 end
@@ -17,20 +17,28 @@ class String
   end
 end
 
-unless ARGV[0].numeric?
+if $PROGRAM_NAME.eql?(__FILE__) && !ARGV[0].numeric?
   puts 'Input is not a number.'
   exit
 end
 
 # redefine day 2
 class Day5
-  def parse_opcode(input)
-    index = 0
-    while 1.positive?
+  def initialize(user_input)
+    # puts "INITTING DAY5 #{user_input}"
+    @user_input = user_input
+  end
 
+  def parse_opcode(input)
+    # phase setting is an array with [phase_setting, user_input]
+    index = 0
+    input_count = 0
+    last_four = 0
+    while 1.positive?
+      # puts "================#{index}====================="
       instruction = input[index].to_s.each_char.map(&:to_i)
       opcode = instruction.pop(2).join.to_i
-      break if opcode.equal?(99)
+      return last_four if opcode.equal?(99)
 
       # Modes:
       mode1 = instruction.pop || 0
@@ -43,10 +51,21 @@ class Day5
 
       val1 = get_vals(pos1, mode1, input) # get the val incase we need to print it
       val2 = get_vals(pos2, mode2, input)
+      # puts "#{val1}, #{val2}, #{opcode}"
+
       val3, increment = get_val3(opcode, val1, val2)
 
-      input[pos1] = ARGV[0].to_i if opcode.eql?(3) # input is 1.  (this saves me from actually inputting it manually)
-      puts val1 if opcode.eql?(4) # output the value
+      if opcode.eql?(3) # input is 1.  (this saves me from actually inputting it manually)
+        puts "opcode 3: setting input[#{pos1}] = #{@user_input}[#{input_count}] (#{@user_input[input_count]})"
+        puts "using last printed number: #{last_four}" if @user_input[input_count].nil?
+        input[pos1] = @user_input[input_count] || last_four
+        input_count += 1
+      end
+      if opcode.eql?(4) # output the value
+        last_four = val1
+        puts val1
+      end
+
       index = val1.nonzero? ? val2 : index + 3 if opcode.eql?(5) # output the value
       index = val1.zero? ? val2 : index + 3 if opcode.eql?(6) # output the value
       input[pos3] = val1 < val2 ? 1 : 0 if opcode.eql?(7)
@@ -57,14 +76,18 @@ class Day5
 
       input[pos3] = val3
     end
+    return last_four
   end
 
   def get_vals(position_value, mode, input)
     # puts "get vals: #{position_value} - #{mode}"
     case mode
     when 0
+      # puts "input: #{input}"
+      # puts "position mode: return #{input[position_value]}"
       return input[position_value]
     when 1
+      # puts "immediate mode: return #{position_value}"
       return position_value
     end
   end
@@ -100,6 +123,6 @@ end
 
 input = get_array(File.absolute_path(__FILE__)).map!(&:to_i)
 
-d = Day5.new
-
-d.parse_opcode(input)
+d = Day5.new([ARGV[0].to_i])
+# d = Day5.new([6, 4686].reject(&:nil?))
+puts d.parse_opcode(input)

@@ -16,6 +16,7 @@ end
 input.each_with_index do |y_arr, y|
   y_arr.each_with_index do |_, x|
     asteroids.push([x, y]) if input[y][x].eql?('#')
+    # input[y][x] because of how the array is mapped compared to how its shown
   end
 end
 
@@ -58,10 +59,25 @@ def slope(x1, y1, x2, y2)
   return Math.atan2(x1 - x2, y1 - y2)
 end
 
-# puts asteroids.to_s
+puts asteroids.to_s
 point_slopes = get_slopes_of_asteroids(asteroids)
 # pp point_slopes
 
 # map the points to the count of uniq slopes, and then find the slope with the max amount of points
 a = point_slopes.map { |point, slopes| [point, slopes.uniq.count] }.to_h.max_by { |_, v| v }
+
+
+b = {}
+# just to check other stuff
+# iterate over the array, counting duplicate entries
+point_slopes.each do |k, arr|
+  b[k] = {} if b[k].nil?
+  # puts k, arr.to_s
+  arr.each do |slope|
+    b[k][slope] = 0 if b[k][slope].nil?
+    b[k][slope] += 1
+  end
+end
+
+pp b
 puts a.to_s

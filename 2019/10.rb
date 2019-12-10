@@ -20,7 +20,7 @@ input.each_with_index do |y_arr, y|
   end
 end
 
-pp asteroids
+# pp asteroids
 
 def get_slopes_of_asteroids(asteroids, slopes = {})
   # get the first asteroid in the array
@@ -33,18 +33,18 @@ def get_slopes_of_asteroids(asteroids, slopes = {})
     x2 = coord[0]
     y2 = coord[1]
     slope = slope(x1, y1, x2, y2) # Math.atan2(x1 - x2, y1 - y2)
+    slope2 = slope(x2, y2, x1, y1) # do the reverse of the above.
 
-    # Add slope to the hash, create blank array first if its nil.
+    # Add arctangent to the hash, create blank array first if its nil.
     (slopes["#{x1},#{y1}"] ||= []) << slope
-    (slopes["#{x2},#{y2}"] ||= []) << slope
-
-    # This creates a hash of points, each with an array of slopes.
-    # Hash gaurentees that we only have one array of slopes per asteroid
+    (slopes["#{x2},#{y2}"] ||= []) << slope2 # save the 2nd arctangent with the 2nd point.
+    # This creates a hash of points, each with an array of arctangents.
+    # Hash gaurentees that we only have one array of arctangents per asteroid
     # later on, we take the uniq count of slopes.
 
-    puts "#{x1},#{y1} -> #{x2},#{y2}"
+    # puts "#{x1},#{y1} -> #{x2},#{y2}"
   end
-  puts '========================'
+  # puts '========================'
 
   # stop recursing if we have no more asteroids
   get_slopes_of_asteroids(asteroids, slopes) unless asteroids.empty?
@@ -59,7 +59,7 @@ def slope(x1, y1, x2, y2)
   return Math.atan2(x1 - x2, y1 - y2)
 end
 
-puts asteroids.to_s
+# puts asteroids.to_s
 point_slopes = get_slopes_of_asteroids(asteroids)
 # pp point_slopes
 
@@ -79,5 +79,5 @@ point_slopes.each do |k, arr|
   end
 end
 
-pp b
+# pp b
 puts a.to_s

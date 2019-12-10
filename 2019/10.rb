@@ -61,23 +61,32 @@ end
 
 # puts asteroids.to_s
 point_slopes = get_slopes_of_asteroids(asteroids)
+
+# sort the arctangents
+point_slopes.map { |_, arctangents| arctangents.sort! }
+
 # pp point_slopes
 
 # map the points to the count of uniq slopes, and then find the slope with the max amount of points
 a = point_slopes.map { |point, slopes| [point, slopes.uniq.count] }.to_h.max_by { |_, v| v }
 
-
-b = {}
-# just to check other stuff
-# iterate over the array, counting duplicate entries
-point_slopes.each do |k, arr|
-  b[k] = {} if b[k].nil?
-  # puts k, arr.to_s
-  arr.each do |slope|
-    b[k][slope] = 0 if b[k][slope].nil?
-    b[k][slope] += 1
-  end
-end
+# b = {}
+# # iterate over the array, counting duplicate entries
+# point_slopes.each do |k, arr|
+#   b[k] = {} if b[k].nil?
+#   # puts k, arr.to_s
+#   arr.each do |slope|
+#     b[k][slope] = 0 if b[k][slope].nil?
+#     b[k][slope] += 1
+#   end
+# end
 
 # pp b
-puts a.to_s
+
+# part 1
+puts "part1: #{a}"
+
+# part 2
+starting_point = [a[0].split(/,/)[1].to_i, a[0].split(/,/)[1].to_i - 1]
+
+puts "starting point: #{starting_point}"

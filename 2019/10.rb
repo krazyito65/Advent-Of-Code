@@ -19,6 +19,8 @@ input.each_with_index do |y_arr, y|
   end
 end
 
+pp asteroids
+
 def get_slopes_of_asteroids(asteroids, slopes = {})
   # get the first asteroid in the array
   x1 = asteroids[0][0]
@@ -34,8 +36,14 @@ def get_slopes_of_asteroids(asteroids, slopes = {})
     # Add slope to the hash, create blank array first if its nil.
     (slopes["#{x1},#{y1}"] ||= []) << slope
     (slopes["#{x2},#{y2}"] ||= []) << slope
+
+    # This creates a hash of points, each with an array of slopes.
+    # Hash gaurentees that we only have one array of slopes per asteroid
+    # later on, we take the uniq count of slopes.
+
+    puts "#{x1},#{y1} -> #{x2},#{y2}"
   end
-  # puts '========================'
+  puts '========================'
 
   # stop recursing if we have no more asteroids
   get_slopes_of_asteroids(asteroids, slopes) unless asteroids.empty?

@@ -5,7 +5,7 @@ require 'pp'
 
 class Hash
   def compact
-    delete_if { |k, v| v.nil? || v.empty? }
+    delete_if { |_k, v| v.nil? || v.empty? }
   end
 end
 
@@ -122,7 +122,6 @@ a = point_slopes.map { |point, slopes| [point, slopes.uniq.count] }.to_h.max_by 
 puts 'Day10'
 puts "part1: #{a}"
 
-
 # part 2
 station_location = [a[0].split(/,/)[0].to_i, a[0].split(/,/)[1].to_i]
 # puts "station_location: #{station_location}"
@@ -138,9 +137,9 @@ asteroid_count = 0
 until asteroid_angles.empty?
   asteroid_angles.each do |angle, ast|
     # puts "#{angle} => #{ast[0]}"
-    closest_point = ast.map { |point|
+    closest_point = ast.map do |point|
       distance(starting_point[0], starting_point[1], point[0], point[1])
-    }.each_with_index.min[1]
+    end.each_with_index.min[1]
     asteroid_count += 1
     # puts "#{asteroid_count}: #{ast[closest_point]}"
     asteroid_angles[angle] -= [ast[closest_point]]
@@ -152,6 +151,5 @@ until asteroid_angles.empty?
   asteroid_angles.compact # only needed if we don't break so its not infinite.
   # puts '============'
 end
-
 
 # puts asteroids.to_s

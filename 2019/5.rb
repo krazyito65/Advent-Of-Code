@@ -73,8 +73,12 @@ class Day5
 
       index = val1.nonzero? ? val2 : index + 3 if opcode.eql?(5) # output the value
       index = val1.zero? ? val2 : index + 3 if opcode.eql?(6) # output the value
-      input[(mode3.eql?(2) ? pos3 + relative_base : pos3)] = val1 < val2 ? 1 : 0 if opcode.eql?(7)
-      input[(mode3.eql?(2) ? pos3 + relative_base : pos3)] = val1.eql?(val2) ? 1 : 0 if opcode.eql?(8)
+      if opcode.eql?(7)
+        input[(mode3.eql?(2) ? pos3 + relative_base : pos3)] = val1 < val2 ? 1 : 0
+      end
+      if opcode.eql?(8)
+        input[(mode3.eql?(2) ? pos3 + relative_base : pos3)] = val1.eql?(val2) ? 1 : 0
+      end
       relative_base += val1 if opcode.eql?(9)
       # puts "relative_base: #{relative_base}"
 

@@ -18,7 +18,6 @@ class Amp
 
     d5 = Day5.new([@phase_setting, @input])
 
-
     # puts "input: #{input}"
 
     return d5.parse_opcode(@puzzle_input.dup)
@@ -48,11 +47,11 @@ def find_largest_signal(feedback_loop = false)
 
   generate_signals(feedback_loop).each do |phase_settings|
     user_input = 0
-    puts ""
+    puts ''
     puts "phase setting #{phase_settings}"
     # puts ""
     phase_settings.each do |setting|
-      puts ""
+      puts ''
       puts "setting #{setting}"
       # puts ""
       user_input = Amp.new(user_input, setting).parse_amp_code

@@ -6,7 +6,7 @@ require 'pp'
 # Jupiters Moons
 class Moons
   # shorthand for set/get methods
-  attr_accessor :name, :x, :y, :z, :pos, :vel, :time_step
+  attr_accessor :name, :x, :y, :z, :pos, :vel, :time_step, :inital_state
 
   @@all = []
 
@@ -18,6 +18,7 @@ class Moons
     @vel = [0, 0, 0]
     @time_step = 0
     update_positions
+    @inital_state = [x, y, z]
     @@all << self
   end
 
@@ -143,15 +144,25 @@ end
 # Moons.all.each do |moon|
 #   puts "#{moon.pos}, #{moon.vel}"
 # end
+init_state = 0
 
-(1..1000).each do |time|
+loop.with_index do |_, time|
   # puts "===============TIME: #{time}==============="
   total_energy = 0
+  init_state = 0
   Moons.increment_time
   Moons.all.each do |moon|
     moon_energy = Moons.calulate_total_energy(moon)
     total_energy += moon_energy
     # puts "#{moon.pos}, #{moon.vel}, #{moon_energy}"
+    next unless moon.vel.eql?([0, 0, 0]) && moon.pos.eql?(moon.inital_state)
+
+    init_state += 1
+    next unless init_state.eql?(4)
+
+    puts moon.time_step
+    # exit
+    # moon.inital_state
   end
-  puts "Total Energy at step #{time}: #{total_energy}" if (time % 100).eql?(0)
+  puts "Total Energy at step #{time}: #{total_energy}" if time.eql?(1000)
 end

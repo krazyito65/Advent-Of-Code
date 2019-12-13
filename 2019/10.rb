@@ -3,6 +3,18 @@
 require_relative 'util/shared_functions.rb'
 require 'pp'
 
+class Hash
+  def compact
+    delete_if { |k, v| v.nil? || v.empty? }
+  end
+end
+
+def get_angle(dx, dy)
+  a = Math.atan2(dx, -dy) * (180 / Math::PI)
+  a += 360 if a.negative?
+  return a
+end
+
 input = get_list(File.absolute_path(__FILE__))
 asteroids = []
 
@@ -51,6 +63,25 @@ def get_slopes_of_asteroids(asteroids, slopes = {})
   return slopes
 end
 
+def get_asteroid_angles(asteroids, station_location, angles = {})
+  asteroids.shift if asteroids[0].eql?(station_location) # skip the asteroid the station is on.
+
+  dx = asteroids[0][0] - station_location[0]
+  dy = asteroids[0][1] - station_location[1]
+
+  angle = get_angle(dx, dy)
+
+  # angles = { angle => angles[angle] || [] }
+
+  (angles[angle] ||= []) << asteroids[0]
+  # puts asteroids[0].to_s
+  # angles[angle] += asteroids[0]
+
+  asteroids.shift # remove the first element so we can pass the rest of the elements recursivly
+  get_asteroid_angles(asteroids, station_location, angles) unless asteroids.empty?
+  return angles
+end
+
 # determine the slope between two points.
 def slope(x1, y1, x2, y2)
   # 3,4 ------ 2, 2 and 1, 0
@@ -59,8 +90,12 @@ def slope(x1, y1, x2, y2)
   return Math.atan2(x1 - x2, y1 - y2)
 end
 
+def distance(station_x, station_y, asteriod_x, asteroid_y)
+  return Math.sqrt((asteriod_x - station_x)**2 + (asteroid_y - station_y)**2)
+end
+
 # puts asteroids.to_s
-point_slopes = get_slopes_of_asteroids(asteroids)
+point_slopes = get_slopes_of_asteroids(asteroids.dup)
 
 # sort the arctangents
 point_slopes.map { |_, arctangents| arctangents.sort! }
@@ -84,9 +119,39 @@ a = point_slopes.map { |point, slopes| [point, slopes.uniq.count] }.to_h.max_by 
 # pp b
 
 # part 1
+puts 'Day10'
 puts "part1: #{a}"
 
-# part 2
-starting_point = [a[0].split(/,/)[1].to_i, a[0].split(/,/)[1].to_i - 1]
 
-puts "starting point: #{starting_point}"
+# part 2
+station_location = [a[0].split(/,/)[0].to_i, a[0].split(/,/)[1].to_i]
+# puts "station_location: #{station_location}"
+starting_point = [station_location[0], station_location[1] - 1]
+
+# puts "starting point: #{starting_point}"
+
+asteroid_angles = get_asteroid_angles(asteroids, station_location).sort.to_h
+
+# pp asteroid_angles
+
+asteroid_count = 0
+until asteroid_angles.empty?
+  asteroid_angles.each do |angle, ast|
+    # puts "#{angle} => #{ast[0]}"
+    closest_point = ast.map { |point|
+      distance(starting_point[0], starting_point[1], point[0], point[1])
+    }.each_with_index.min[1]
+    asteroid_count += 1
+    # puts "#{asteroid_count}: #{ast[closest_point]}"
+    asteroid_angles[angle] -= [ast[closest_point]]
+    if asteroid_count.eql?(200)
+      puts "part2: #{ast[closest_point]}"
+      break
+    end
+  end
+  asteroid_angles.compact # only needed if we don't break so its not infinite.
+  # puts '============'
+end
+
+
+# puts asteroids.to_s

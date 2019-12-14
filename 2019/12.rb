@@ -6,7 +6,8 @@ require 'pp'
 # Jupiters Moons
 class Moons
   # shorthand for set/get methods
-  attr_accessor :name, :x, :y, :z, :pos, :vel, :time_step, :inital_state
+  attr_accessor :name, :x, :y, :z, :pos, :vel, :inital_state
+  attr_accessor :time_step_x, :time_step_y, :time_step_z, :time_step
 
   @@all = []
 
@@ -17,6 +18,9 @@ class Moons
     @name = name
     @vel = [0, 0, 0]
     @time_step = 0
+    @time_step_x = 0
+    @time_step_y = 0
+    @time_step_z = 0
     update_positions
     @inital_state = [x, y, z]
     @@all << self
@@ -28,6 +32,10 @@ class Moons
 
   def self.all
     return @@all
+  end
+
+  def self.remove_all
+    @@all = []
   end
 
   def self.increment_time(all_moons = @@all)
@@ -43,6 +51,51 @@ class Moons
     end
 
     all_moons.each(&:apply_velocity)
+  end
+
+  def self.increment_time_x(all_moons = @@all)
+    # puts 'incrementing time'
+    # for each moon
+    all_moons.each_with_index do |current_moon, index|
+      # compare with every other moon
+      (index + 1..all_moons.length - 1).each do |jindex|
+        next_moon = all_moons[jindex]
+        current_moon.update_x_velocity(current_moon, next_moon) # apply gravity between these 2 moons.
+        # puts "#{current_moon.name} + #{next_moon.name}"
+      end
+    end
+
+    all_moons.each(&:apply_x_velocity)
+  end
+
+  def self.increment_time_y(all_moons = @@all)
+    # puts 'incrementing time'
+    # for each moon
+    all_moons.each_with_index do |current_moon, index|
+      # compare with every other moon
+      (index + 1..all_moons.length - 1).each do |jindex|
+        next_moon = all_moons[jindex]
+        current_moon.update_y_velocity(current_moon, next_moon) # apply gravity between these 2 moons.
+        # puts "#{current_moon.name} + #{next_moon.name}"
+      end
+    end
+
+    all_moons.each(&:apply_y_velocity)
+  end
+
+  def self.increment_time_z(all_moons = @@all)
+    # puts 'incrementing time'
+    # for each moon
+    all_moons.each_with_index do |current_moon, index|
+      # compare with every other moon
+      (index + 1..all_moons.length - 1).each do |jindex|
+        next_moon = all_moons[jindex]
+        current_moon.update_z_velocity(current_moon, next_moon) # apply gravity between these 2 moons.
+        # puts "#{current_moon.name} + #{next_moon.name}"
+      end
+    end
+
+    all_moons.each(&:apply_z_velocity)
   end
 
   def apply_gravity(moon1, moon2)
@@ -98,6 +151,24 @@ class Moons
     @time_step += 1
   end
 
+  def apply_x_velocity
+    @x += @vel[0]
+    update_positions
+    @time_step_x += 1
+  end
+
+  def apply_y_velocity
+    @y += @vel[1]
+    update_positions
+    @time_step_y += 1
+  end
+
+  def apply_z_velocity
+    @z += @vel[2]
+    update_positions
+    @time_step_z += 1
+  end
+
   def calulate_potential_energy
     sum = 0
     @pos.each do |num|
@@ -119,19 +190,22 @@ class Moons
   end
 end
 
-names = %w[Io Europa Ganymede Callisto]
+def input_moons(input)
+  names = %w[Io Europa Ganymede Callisto]
+
+  input.each_with_index do |coord, index|
+    x = coord.match(/x=(-?\d+)/)[1].to_i
+    y = coord.match(/y=(-?\d+)/)[1].to_i
+    z = coord.match(/z=(-?\d+)/)[1].to_i
+    # puts "Moons.new(#{names[index]}, #{x}, #{y}, #{z})"
+    Moons.new(names[index], x, y, z)
+  end
+end
 
 input = get_list(File.absolute_path(__FILE__))
 
 # pp input
-
-input.each_with_index do |coord, index|
-  x = coord.match(/x=(-?\d+)/)[1].to_i
-  y = coord.match(/y=(-?\d+)/)[1].to_i
-  z = coord.match(/z=(-?\d+)/)[1].to_i
-  # puts "Moons.new(#{names[index]}, #{x}, #{y}, #{z})"
-  Moons.new(names[index], x, y, z)
-end
+input_moons(input)
 
 # Io = Moons.new('Io', -1, 0, 2)
 # Europa = Moons.new('Europa', 2, -10, -7)
@@ -146,6 +220,7 @@ end
 # end
 init_state = 0
 
+## part1
 loop.with_index do |_, time|
   # puts "===============TIME: #{time}==============="
   total_energy = 0
@@ -154,15 +229,85 @@ loop.with_index do |_, time|
   Moons.all.each do |moon|
     moon_energy = Moons.calulate_total_energy(moon)
     total_energy += moon_energy
-    # puts "#{moon.pos}, #{moon.vel}, #{moon_energy}"
-    next unless moon.vel.eql?([0, 0, 0]) && moon.pos.eql?(moon.inital_state)
+    # puts "#{moon.pos}, #{moon.vel}, #{moon_energy}" if moon.time_step.eql?(1)
+    # next unless moon.vel.eql?([0, 0, 0]) && moon.pos.eql?(moon.inital_state)
+
+    # init_state += 1
+    # next unless init_state.eql?(4)
+
+    # puts moon.time_step
+    # b = true
+    # moon.inital_state
+  end
+
+  puts "Total Energy at step #{time}: #{total_energy}" if time.eql?(1000)
+  break if time.eql?(1000)
+end
+
+Moons.remove_all
+
+input_moons(input)
+
+x_steps = 0
+y_steps = 0
+z_steps = 0
+
+
+## get x steps
+loop.with_index do |_, time|
+  # puts "===============TIME: #{time}==============="
+  init_state = 0
+  Moons.increment_time_x
+  break unless Moons.all.each do |moon|
+    # puts "#{moon.pos}, #{moon.vel}"
+    next unless moon.vel[0].eql?(0) && moon.pos[0].eql?(moon.inital_state[0])
 
     init_state += 1
     next unless init_state.eql?(4)
 
-    puts moon.time_step
-    # exit
-    # moon.inital_state
+    x_steps = moon.time_step_x
+    puts "initial x: #{moon.pos[0]}, steps: #{moon.time_step_x}"
+    break
   end
-  puts "Total Energy at step #{time}: #{total_energy}" if time.eql?(1000)
+  # break
 end
+
+## get y steps
+loop.with_index do |_, time|
+  # puts "===============TIME: #{time}==============="
+  init_state = 0
+  Moons.increment_time_y
+  break unless Moons.all.each do |moon|
+    # puts "#{moon.pos}, #{moon.vel}"
+    next unless moon.vel[1].eql?(0) && moon.pos[1].eql?(moon.inital_state[1])
+
+    init_state += 1
+    next unless init_state.eql?(4)
+
+    y_steps = moon.time_step_y
+    puts "initial y: #{moon.pos[1]}, steps: #{moon.time_step_y}"
+    break
+  end
+  # break
+end
+
+## get z steps
+loop.with_index do |_, time|
+  # puts "===============TIME: #{time}==============="
+  init_state = 0
+  Moons.increment_time_z
+  break unless Moons.all.each do |moon|
+    # puts "#{moon.pos}, #{moon.vel}"
+    next unless moon.vel[2].eql?(0) && moon.pos[2].eql?(moon.inital_state[2])
+
+    init_state += 1
+    next unless init_state.eql?(4)
+
+    z_steps = moon.time_step_z
+    puts "initial z: #{moon.pos[2]}, steps: #{moon.time_step_z}"
+    break
+  end
+  # break
+end
+
+puts "LCM: #{[x_steps,y_steps,z_steps].reduce(1, :lcm)}"
